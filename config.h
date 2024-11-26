@@ -1,31 +1,27 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <X11/XF86keysym.h>  // Add this to include XF86 keysyms
+
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=18" };
-static const char dmenufont[]       = "monospace:size=18";
+static const char *fonts[]          = { "MesloLGS NF:size=20" };
+static const char dmenufont[]       = "monospace:size=20";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+static const char col_cyan[]        = "#011408";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 };
 
-/* systray */
-static int showsystray = 1;        /* 1 means show systray */
-static int systrayonleft = 0;      /* 1 means systray on left, 0 means on right */
-static int systrayspacing = 2;      /* spacing between systray icons */
-
-
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "ㄒ", "ㄩ", "尺", "ㄒ", "ㄥ", "乇" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -66,6 +62,14 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
+/* brightness control */
+static const char *brightness_up[]   = { "light", "-A", "1", NULL };  // Increase brightness by 1%
+static const char *brightness_down[] = { "light", "-U", "1", NULL };  // Decrease brightness by 1%
+static const char *alacrittycmd[]  = { "alacritty", NULL };
+static const char *mutecmd[] = { "pamixer", "--toggle-mute", NULL };
+static const char *volupcmd[] = { "pamixer", "--increase", "5", NULL };
+static const char *voldowncmd[] = { "pamixer", "--decrease", "5", NULL };
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
@@ -101,6 +105,13 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ 0,                            XK_Print,      spawn,        {.v = (const char*[]){ "flameshot", "gui", "-p", "/home/turtle/ss", NULL }} },
+	{ 0, XF86XK_MonBrightnessUp, spawn, {.v = brightness_up } },   // Brightness Up
+        { 0, XF86XK_MonBrightnessDown, spawn, {.v = brightness_down } }, // Brightness Down
+        { Mod1Mask|ShiftMask, XK_Return, spawn, {.v = alacrittycmd } },
+	{ 0, XF86XK_AudioMute, spawn, SHCMD("amixer set Master toggle") },
+	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("amixer set Master 1%-") },
+	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("amixer set Master 1%+") },
 };
 
 /* button definitions */
@@ -119,4 +130,3 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-
